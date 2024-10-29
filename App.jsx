@@ -1,44 +1,33 @@
-import { Image, StyleSheet, Text, TextInput, View, Button } from "react-native";
-import { Alert } from "react-native";
+import Login from "./Login";
+import Home from "./Home";
 
-import { supabase } from "./lib/supabase";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
+
+import { UserContext } from "./UserContext";
 import { useState } from "react";
 
+const Stack = createNativeStackNavigator();
+
 export default function App() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-
-  async function signInWithEmail() {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
-
-    console.log(email, password)
-
-    if (error) Alert.alert(error.message);
-  }
+  const [user, setUser] = useState(null);
 
   return (
-    <View style={styles.container}>
-      <Image
-        source={require("./Images/logo.jpg")}
-        style={{ width: 300, height: 300 }}
-      />
-      <View>
-        <TextInput placeholder="Email" onChangeText={email => setEmail(email)} />
-        <TextInput placeholder="Password" onChangeText={password => setPassword(password)} />
-      </View>
-      <Button title="Sign In" onPress={signInWithEmail} />
-    </View>
+    <UserContext.Provider value={{ user, setUser }}>
+      <NavigationContainer>
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen
+            name={"Login"}
+            component={Login}
+            options={{ title: "Login" }}
+          />
+          <Stack.Screen
+            name={"Home"}
+            component={Home}
+            options={{ title: "Home" }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </UserContext.Provider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-});
