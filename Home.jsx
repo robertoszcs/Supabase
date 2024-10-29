@@ -1,18 +1,27 @@
-import { View, Text } from 'react-native'
-import React, { useContext } from 'react'
-import {UserContext} from './UserContext'
+import { View, Text, FlatList } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { UserContext } from "./UserContext";
+import { supabase } from "./lib/supabase";
+import Carro from "./Carro";
 
 const Home = () => {
+  const { user, setUser } = useContext(UserContext);
+  const [carros, setCarros] = useState(null);
 
-const {user, setUser} = useContext(UserContext);
+  useEffect(() => {
+    const fetchData = async () => {
+      let { data: Tienda, error } = await supabase.from("Tienda").select("*");
+      error == null ? setCarros(Tienda) : console.log(error);
+    };
 
-  {console.log(user)}
+    fetchData();
+  }, []);
 
   return (
     <View>
-      <Text>Bienvenido {user.email}</Text>
+      {carros && <FlatList data={carros} renderItem={({item}) => <Carro carro={item} />}/>}
     </View>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;
